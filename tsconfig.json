@@ -5,6 +5,9 @@
     "outDir": "./dist",
     "noEmitOnError": false,
     "sourceMap": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "strictNullChecks":false,
+    "strictPropertyInitialization": false,
   },
   "include": [
     "src/**/*.ts",

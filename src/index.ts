@@ -1,12 +1,12 @@
-// @ts-nocheck
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import {v4 as uuidv4} from 'uuid';
 
 type NestedObject<T> = {
   [K in keyof T]: T[K] extends object ? NestedObject<T[K]> : T[K];
 };
-type Obj = {[key: string]: number};
 
-class State<T extends object> {
-  public state: T;
+export default class State<T extends object> {
+  public state: NestedObject<T>;
   private reactive_keys: object;
   private delimiter = '~';
   private keyValuePairs: unknown[] = [];
@@ -16,14 +16,15 @@ class State<T extends object> {
     this.reactive_keys = {};
 
     const handler: ProxyHandler<T> = {
-      get: (target: T, key: keyof T) => {
-        const value: unknown = target[key];
+      get: (target: T, key: keyof T & string & symbol) => {
+        const value: object | null = target[key];
         if (typeof value === 'object') {
           return new Proxy(value, handler);
         } else {
           return value;
         }
       },
+      // @ts-ignore:next-line
       set: (target: T, key: keyof T, value: T[keyof T]) => {
         target[key] = value;
         this.triggerUpdate(target, key);
@@ -34,7 +35,8 @@ class State<T extends object> {
 
     this.state = new Proxy(initialState, handler);
   }
-  public reactive(key: string, value: unknown) {
+
+  public reactive(key: string, value: string) {
     if (!this.isKeyPath(key)) {
       this.state[key] = this.evaluateExpression(value, this.state);
     }
@@ -43,13 +45,11 @@ class State<T extends object> {
     );
     const unknownVariables = value;
     includedExpresionInValues.forEach(includedExpresionInValue => {
-      console.log(includedExpresionInValue, key, value);
-      // It seems, b exists once and we have to think how it is possible to not overriding the b and add new one
       this.keyValuePairs[key] = unknownVariables;
       this.reactive_keys = {
         ...this.reactive_keys,
         ...{
-          [`${includedExpresionInValue}${this.delimiter}${this.uuid()}`]: {
+          [`${includedExpresionInValue}${this.delimiter}${uuidv4()}`]: {
             mainKey: key,
             value,
           },
@@ -58,23 +58,10 @@ class State<T extends object> {
     });
   }
 
-  private uuid(): string {
-    let d = new Date().getTime();
-    if (
-      typeof performance !== 'undefined' &&
-      typeof performance.now === 'function'
-    ) {
-      d += performance.now(); // use high-precision timer if available
-    }
-    const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-      const r = (d + Math.random() * 16) % 16 | 0;
-      d = Math.floor(d / 16);
-      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
-    });
-    return uuid;
-  }
-
-  private pairValues(str: string, obj: Obj): {[K in keyof T]?: number} {
+  private pairValues(
+    str: string,
+    obj: NestedObject<T>
+  ): {[K in keyof T]?: number} {
     const regExp = /\$(\w+)/g;
     let match;
     const values: {[K in keyof T]?: number} = {};
@@ -95,15 +82,27 @@ class State<T extends object> {
     const expression = str.replace(/\$(\w+)/g, (_, key) =>
       values[key].toString()
     );
-    return eval(expression);
+    return this.eval(expression);
   }
 
-  private isKeyPath(key) {
+  private eval(expression: string) {
+    'use strict';
+    if (
+      this.isNumericMath(expression) &&
+      typeof eval?.(expression) === 'number'
+    ) {
+      return new Function(`return ${expression}`)();
+    } else {
+      return expression;
+    }
+  }
+
+  private isKeyPath(key: string) {
     return key.split('.').length > 1;
   }
 
   private updateChainedObject(variable: keyof T) {
-    const getKeys: Array<unknown> = Object.keys(this.reactive_keys);
+    const getKeys: Array<string> = Object.keys(this.reactive_keys);
     getKeys.forEach(variable_name => {
       const regex = new RegExp(`${this.delimiter}[^${this.delimiter}]+$`);
 
@@ -121,12 +120,16 @@ class State<T extends object> {
             values[key].toString()
           );
         }
-        this.mutateNestedObject(mainKey, eval(reCalculate), this.state);
+        this.mutateNestedObject(mainKey, this.eval(reCalculate), this.state);
       }
     });
   }
 
-  private mutateNestedObject(path: string, value: any, obj: any) {
+  private isNumericMath(str: string): boolean {
+    return /^[\d+\-*/()\s]+$/.test(str);
+  }
+
+  private mutateNestedObject(path: string, value: unknown, obj: unknown) {
     const keys = path.split('.');
     const lastKey = keys.pop();
     let nestedObj = obj;
@@ -134,34 +137,20 @@ class State<T extends object> {
       nestedObj = nestedObj[key];
     }
     nestedObj[lastKey] = value;
-    this.updateChainedObject(lastKey);
     if (typeof nestedObj[lastKey] === 'object') {
       for (const subKey in nestedObj[lastKey]) {
-        this.updateChainedObject(subKey);
+        this.updateChainedObject(subKey as keyof T);
       }
+    } else {
+      this.updateChainedObject(lastKey as keyof T);
     }
   }
 
-  private triggerUpdate(target: T, key: keyof T) {
+  private triggerUpdate(target: any, key: keyof T) {
     if (typeof target[key] === 'object') {
       for (const subKey in target[key]) {
-        this.triggerUpdate(target[key], subKey as keyof (typeof target)[key]);
+        this.triggerUpdate(target[key], subKey as unknown as keyof T);
       }
     }
   }
 }
-
-// Example usage:
-const data = {a: 1, b: 1, c: {d: 2, k: 4}};
-const r = new State(data);
-
-r.reactive('c.d', '2 + $b');
-r.reactive('c.k', '5 * $a * $b');
-console.time('Task');
-r.state.a = 3;
-r.state.b = 4;
-for (let i = 0; i < 1000000; i++) {
-  r.state.b = 4;
-}
-console.timeEnd('Task');
-console.log(r.state);
