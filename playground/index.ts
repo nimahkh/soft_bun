@@ -17,7 +17,7 @@ for (let i = 0; i < 100000; i++) {
   r.state.a += 4;
 }
 console.timeEnd('Task');
-console.log(r.state);
+console.log(r.state); 
 
 interface IAddress {
   postal: string;

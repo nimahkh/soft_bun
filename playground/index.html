@@ -1,0 +1,99 @@
+
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+        <style>
+            body {
+                position: relative;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                background: grey;
+            }
+            #container {
+                padding:0;
+                position: absolute;
+                width: 100% !important;
+                height: 100vh;
+            }
+        </style>
+	</head>
+	<body>
+		<div id="container"></div>
+
+		<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.5/require.min.js"
+			integrity="sha256-0SGl1PJNDyJwcV5T+weg2zpEMrh7xvlwO4oXgvZCeZk="
+			crossorigin="anonymous"
+		></script>
+		<script>
+			require.config({ paths: { vs: '../node_modules/monaco-editor/min/vs' } });
+
+			require(['vs/editor/editor.main'], function () {
+				var editor = monaco.editor.create(document.getElementById('container'), {
+					value: [`import State from 'soft_bun';
+
+// Example usage:
+
+const data = {a: 1, b: 1, c: {d: 2, k: 4}};
+const r = new State(data);
+
+r.reactive('c.d', '2 + $b');
+r.reactive('c.k', '5 * $a * $b');
+console.time('Task');
+r.state.a = 3;
+r.state.b = 4;
+for (let i = 0; i < 100000; i++) {
+  r.state.b += 4;
+}
+for (let i = 0; i < 100000; i++) {
+  r.state.a += 4;
+}
+console.timeEnd('Task');
+console.log(r.state); 
+
+interface IAddress {
+  postal: string;
+  city: string;
+  house_number: number;
+}
+
+interface IPerson {
+  name: string;
+  family: string;
+  address: IAddress;
+  age: number;
+}
+const data2: IPerson = {
+  name: 'Nima',
+  family: 'HKH',
+  age: 30,
+  address: {
+    postal: '2A',
+    city: 'Utrecht',
+    house_number: 3,
+  },
+};
+const person = new State(data2);
+// const expression = new String('$name - $family');
+// person.reactive('address.postal', expression);
+// person.state.age = 10;
+person.reactive('full_name', '$name $family');
+console.log(person.state);
+person.state.name = 'Mo';
+person.state.family = 'Mahabadi';
+console.log(person.state);
+`].join('\n'),
+					language: 'typescript',
+                    theme: 'vs-dark',
+				});
+                editor.updateOptions({
+                    autoIndent: 'advanced'
+                });
+			});
+		</script>
+	</body>
+</html>
