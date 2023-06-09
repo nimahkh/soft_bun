@@ -1,0 +1,115 @@
+branches: ['main']
+ci: true
+debug: true
+dryRun: false
+
+verifyConditions:
+  - '@semantic-release/changelog'
+  - '@semantic-release/git'
+  - '@semantic-release/github'
+  - '@semantic-release/npm'
+
+# Responsible for determining the type of the next release (major, minor or patch).
+# If multiple plugins with a analyzeCommits step are defined, the release type will be
+# the highest one among plugins output.
+# Look details at: https://github.com/semantic-release/commit-analyzer#configuration
+analyzeCommits:
+  - path: '@semantic-release/commit-analyzer'
+    # Determine the type of release by analyzing commits with conventional-changelog
+    releaseRules:
+      - breaking: true
+        release: major
+      - type:
+          build # Changes that affect the build system or external dependencies
+          # (example scopes: gulp, broccoli, npm)
+        release: patch
+      - type: chore # Other changes that don't modify src or test files
+        release: false
+      - type: ci # Changes to our CI configuration files and scripts
+        release: false
+      - type: docs # Documentation only changes
+        release: patch
+      - type: feat # A new feature
+        release: minor
+      - type: fix # A bug fix
+        release: patch
+      - type: perf # A code change that improves performance
+        release: patch
+      - type: refactor # A code change that neither fixes a bug nor adds a feature
+        release: false
+      - type: revert # Reverts a previous commit
+        release: patch
+      - type:
+          style # Changes that do not affect the meaning of the code
+          # (white-space, formatting, missing semi-colons, etc)
+        release: false
+      - type: test # Adding missing tests or correcting existing tests
+        release: false
+
+# Responsible for generating the content of the release note.
+# If multiple plugins with a generateNotes step are defined,
+# the release notes will be the result of the concatenation of each plugin output.
+generateNotes:
+  - path: '@semantic-release/release-notes-generator'
+    writerOpts:
+      groupBy: 'type'
+      commitGroupsSort: 'title'
+      commitsSort: 'header'
+    linkCompare: true
+    linkReferences: true
+    parserOpts:
+      # detect JIRA issues in merge commits
+      mergePattern: "^Merge branch '(.*)' into (.*)$"
+      mergeCorrespondence: ['branch_src', 'branch_dst']
+    presetConfig:
+      types: # looks like it only works with 'conventionalcommits' preset
+        - type: 'build'
+          section: '🦊 CI/CD'
+          hidden: false
+        - type: 'chore'
+          section: 'Other'
+          hidden: false
+        - type: 'ci'
+          section: '🦊 CI/CD'
+          hidden: false
+        - type: 'docs'
+          section: '📔 Docs'
+          hidden: false
+        - type: 'example'
+          section: '📝 Examples'
+          hidden: false
+        - type: 'feat'
+          section: '🚀 Features'
+          hidden: false
+        - type: 'fix'
+          section: '🛠 Fixes'
+          hidden: false
+        - type: 'perf'
+          section: '⏩ Performance'
+        - type: 'refactor'
+          section: ':scissors: Refactor'
+          hidden: false
+        - type: 'revert'
+          section: '🙅‍♂️ Reverts'
+        - type: 'style'
+          section: '💈 Style'
+        - type: 'test'
+          section: '🧪 Tests'
+          hidden: false
+
+# Responsible for preparing the release, for example creating or updating files
+# such as package.json, CHANGELOG.md, documentation or compiled assets
+# and pushing a commit.
+prepare:
+  - path: '@semantic-release/changelog'
+    # Create or update the changelog file in the local project repository
+  - path: '@semantic-release/git'
+    # Push a release commit and tag, including configurable files
+    message: "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
+    assets: ['package.json', 'package-lock.json']
+
+# Responsible for publishing the release.
+publish:
+  - path: '@semantic-release/github'
+  - path: '@semantic-release/npm'
+    npmPublish: true
