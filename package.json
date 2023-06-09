@@ -18,7 +18,7 @@
     "dev": "npm run build && concurrently \"npm run build:watch\" \"npm run serve:watch\"",
     "serve": "node ./dist/src/index.js",
     "serve:watch": "nodemon ./dist/src/index.js",
-    "semantic-release": "semantic-release"
+    "release": "semantic-release"
   },
   "author": "",
   "license": "ISC",
