@@ -1,6 +1,6 @@
 {
   "name": "soft_bun",
-  "version": "1.0.6",
+  "version": "0.0.0-development",
   "description": "",
   "main": "dist/src/index.js",
   "scripts": {
@@ -17,11 +17,18 @@
     "build:watch": "tsc -w",
     "dev": "npm run build && concurrently \"npm run build:watch\" \"npm run serve:watch\"",
     "serve": "node ./dist/src/index.js",
-    "serve:watch": "nodemon ./dist/src/index.js"
+    "serve:watch": "nodemon ./dist/src/index.js",
+    "release": "semantic-release"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^10.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^9.0.3",
+    "@semantic-release/npm": "^10.0.3",
+    "@semantic-release/release-notes-generator": "^11.0.3",
     "@types/chai": "^4.3.4",
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.18.36",
@@ -32,11 +39,16 @@
     "gts": "^3.1.1",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
+    "semantic-release": "^21.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2"
   },
   "dependencies": {
     "rimraf": "^4.1.2",
     "uuid": "^9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nimatrengo/soft_bun.git"
   }
 }
