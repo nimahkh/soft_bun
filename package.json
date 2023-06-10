@@ -1,6 +1,6 @@
 {
   "name": "soft_bun",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "",
   "main": "dist/src/index.js",
   "scripts": {
