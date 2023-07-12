@@ -37,7 +37,7 @@
     "eslint-plugin-chai-friendly": "^0.7.2",
     "gts": "^4.0.1",
     "mocha": "^10.2.0",
-    "nodemon": "^2.0.20",
+    "nodemon": "^3.0.1",
     "semantic-release": "^21.0.3",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.2"

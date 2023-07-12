@@ -17,7 +17,7 @@ for (let i = 0; i < 100000; i++) {
   r.state.a += 4;
 }
 console.timeEnd('Task');
-console.log(r.state); 
+console.log(r.state);
 
 interface IAddress {
   postal: string;
@@ -42,11 +42,8 @@ const data2: IPerson = {
   },
 };
 const person = new State(data2);
-// const expression = new String('$name - $family');
-// person.reactive('address.postal', expression);
-// person.state.age = 10;
 person.reactive('full_name', '$name $family');
 console.log(person.state);
-person.state.name = 'Mo';
-person.state.family = 'Mahabadi';
+person.state.name = 'John';
+person.state.family = 'Doe';
 console.log(person.state);

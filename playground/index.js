@@ -1,9 +1,9 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var src_1 = require("../src");
 // Example usage:
 var data = { a: 1, b: 1, c: { d: 2, k: 4 } };
-var r = new src_1["default"](data);
+var r = new src_1.default(data);
 r.reactive('c.d', '2 + $b');
 r.reactive('c.k', '5 * $a * $b');
 console.time('Task');
@@ -24,10 +24,10 @@ var data2 = {
     address: {
         postal: '2A',
         city: 'Utrecht',
-        house_number: 3
-    }
+        house_number: 3,
+    },
 };
-var person = new src_1["default"](data2);
+var person = new src_1.default(data2);
 // const expression = new String('$name - $family');
 // person.reactive('address.postal', expression);
 // person.state.age = 10;
