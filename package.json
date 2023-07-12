@@ -10,7 +10,6 @@
     "compile": "tsc src/index.ts --outDir ./dist",
     "fix": "gts fix",
     "install": "npm run compile",
-    "preinstall": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "build": "rimraf ./dist && tsc src/index.ts --outDir ./dist",
