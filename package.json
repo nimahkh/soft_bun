@@ -36,7 +36,7 @@
     "chai": "^4.3.7",
     "concurrently": "^7.6.0",
     "eslint-plugin-chai-friendly": "^0.7.2",
-    "gts": "^3.1.1",
+    "gts": "^4.0.1",
     "mocha": "^10.2.0",
     "nodemon": "^2.0.20",
     "semantic-release": "^21.0.3",

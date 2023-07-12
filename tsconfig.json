@@ -1,17 +1,10 @@
 {
-  "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": ".",
-    "outDir": "./dist",
-    "noEmitOnError": false,
-    "sourceMap": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "strictNullChecks":false,
-    "strictPropertyInitialization": false,
-    "ignoreDeprecations": "5.0"
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true
   },
-  "include": [
-    "src/**/*.ts",
-    "test/**/*.ts"
-  ]
+  "include": ["src/**/*.ts", "src/test/**/*.spec.ts"]
 }

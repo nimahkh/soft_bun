@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {v4 as uuidv4} from 'uuid';
 
 type NestedObject<T> = {
@@ -7,15 +6,15 @@ type NestedObject<T> = {
 
 export default class State<T extends object> {
   public state: NestedObject<T>;
-  private reactive_keys: object;
+  private reactive_keys: Record<string, {mainKey: string; value: string}> = {};
   private delimiter = '~';
-  private keyValuePairs: unknown[] = [];
+  private keyValuePairs: {[key: string]: unknown} = {};
 
-  constructor(initialState: T) {
+  constructor(initialState: NestedObject<T>) {
     this.state = initialState;
     this.reactive_keys = {};
 
-    const handler: ProxyHandler<T> = {
+    const handler: ProxyHandler<NestedObject<T>> = {
       get: (target: T, key: keyof T & string & symbol) => {
         const value: object | null = target[key];
         if (typeof value === 'object') {
@@ -24,11 +23,14 @@ export default class State<T extends object> {
           return value;
         }
       },
-      // @ts-ignore:next-line
-      set: (target: T, key: keyof T, value: T[keyof T]) => {
-        target[key] = value;
-        this.triggerUpdate(target, key);
-        this.updateChainedObject(key);
+      set: (target: T, key: PropertyKey, value: any) => {
+        if (!(key in target)) {
+          target[key as keyof T];
+        }
+        const keyofT = key as keyof T;
+        target[key as keyof T] = value;
+        this.triggerUpdate(target, keyofT);
+        this.updateChainedObject(keyofT);
         return true;
       },
     };
@@ -38,7 +40,7 @@ export default class State<T extends object> {
 
   public reactive(key: string, value: string) {
     if (!this.isKeyPath(key)) {
-      this.state[key] = this.evaluateExpression(value, this.state);
+      this.state[key as keyof T] = this.evaluateExpression(value, this.state);
     }
     const includedExpresionInValues = Object.keys(
       this.pairValues(value, this.state)
@@ -58,18 +60,15 @@ export default class State<T extends object> {
     });
   }
 
-  private pairValues(
-    str: string,
-    obj: NestedObject<T>
-  ): {[K in keyof T]?: number} {
+  private pairValues(str: string, obj: NestedObject<T>): {[K: string]: any} {
     const regExp = /\$(\w+)/g;
     let match;
-    const values: {[K in keyof T]?: number} = {};
+    const values: {[K: string]: any} = {};
     while ((match = regExp.exec(str)) !== null) {
       const key = match[1];
-      const value = obj[key];
+      const value = obj[key as keyof T];
       if (value !== undefined) {
-        values[key as keyof T] = value;
+        values[key] = value;
       } else {
         throw new Error(`Object does not contain key ${key}`);
       }
@@ -77,14 +76,13 @@ export default class State<T extends object> {
     return values;
   }
 
-  private evaluateExpression(str: string, obj: NestedObject<T>): number {
+  private evaluateExpression(str: string, obj: NestedObject<T>): any {
     const values = this.pairValues(str, obj);
-    const expression = str.replace(/\$(\w+)/g, (_, key) =>
-      values[key].toString()
+    const expression = str.replace(/\$(\w+)/g, (_, key: string) =>
+      (values[key] ?? '').toString()
     );
     return this.eval(expression);
   }
-
   private eval(expression: string) {
     'use strict';
     if (
@@ -117,7 +115,7 @@ export default class State<T extends object> {
         for (const key in values) {
           reCalculate = reCalculate.replace(
             new RegExp(`\\$${key}\\b`, 'g'),
-            values[key].toString()
+            (values[key] ?? '').toString()
           );
         }
         this.mutateNestedObject(mainKey, this.eval(reCalculate), this.state);
@@ -129,20 +127,41 @@ export default class State<T extends object> {
     return /^[\d+\-*/()\s]+$/.test(str);
   }
 
-  private mutateNestedObject(path: string, value: unknown, obj: unknown) {
+  private mutateNestedObject(
+    path: string,
+    value: unknown,
+    obj: NestedObject<T>
+  ) {
     const keys = path.split('.');
     const lastKey = keys.pop();
     let nestedObj = obj;
     for (const key of keys) {
-      nestedObj = nestedObj[key];
-    }
-    nestedObj[lastKey] = value;
-    if (typeof nestedObj[lastKey] === 'object') {
-      for (const subKey in nestedObj[lastKey]) {
-        this.updateChainedObject(subKey as keyof T);
+      if (
+        typeof nestedObj[key as keyof T] === 'object' &&
+        nestedObj[key as keyof T] !== null
+      ) {
+        nestedObj = nestedObj[key as keyof T] as NestedObject<T>;
       }
-    } else {
-      this.updateChainedObject(lastKey as keyof T);
+    }
+
+    if (
+      typeof nestedObj === 'object' &&
+      nestedObj !== null &&
+      lastKey !== undefined
+    ) {
+      const castedLastKey = lastKey as keyof T;
+      nestedObj[castedLastKey] = value as T[keyof T];
+
+      if (
+        typeof nestedObj[castedLastKey] === 'object' &&
+        nestedObj[castedLastKey] !== null
+      ) {
+        for (const subKey in nestedObj[castedLastKey] as NestedObject<T>) {
+          this.updateChainedObject(subKey as keyof T);
+        }
+      } else {
+        this.updateChainedObject(castedLastKey);
+      }
     }
   }
 

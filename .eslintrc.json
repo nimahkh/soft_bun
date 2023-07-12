@@ -1,4 +1,5 @@
 {
   "extends": "./node_modules/gts/",
-  "ignorePatterns": ["*.js"]
+  "ignorePatterns": ["*.js"],
+  "rules": {"@typescript-eslint/no-explicit-any": "off"}
 }
