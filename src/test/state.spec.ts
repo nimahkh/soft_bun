@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import {describe, it} from 'mocha';
-import State from '../index';
+import State from '../';
 
 describe('State', () => {
   describe('#reactive', () => {

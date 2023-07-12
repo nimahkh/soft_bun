@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var src_1 = require("../dist/src/index.js");
+var src_1 = require("../src");
 // Example usage:
 var data = { a: 1, b: 1, c: { d: 2, k: 4 } };
 var r = new src_1["default"](data);
