@@ -10,9 +10,10 @@
     "compile": "tsc src/index.ts --outDir ./dist",
     "fix": "gts fix",
     "install": "npm run compile",
+    "preinstall": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "build": "rimraf ./dist && tsc src/index.ts --outDir ./dist",
+    "build": "npm run compile",
     "build:watch": "tsc -w",
     "dev": "npm run build && concurrently \"npm run build:watch\" \"npm run serve:watch\"",
     "serve": "node ./dist/src/index.js",
@@ -43,7 +44,6 @@
     "typescript": "^5.0.2"
   },
   "dependencies": {
-    "rimraf": "^4.1.2",
     "uuid": "^9.0.0"
   },
   "repository": {
