@@ -48,5 +48,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/nimatrengo/soft_bun.git"
+  },
+  "engines": {
+    "npm": ">=8.0.0",
+    "node": ">=18.0.0"
   }
 }
