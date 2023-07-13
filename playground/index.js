@@ -28,11 +28,8 @@ var data2 = {
     },
 };
 var person = new src_1.default(data2);
-// const expression = new String('$name - $family');
-// person.reactive('address.postal', expression);
-// person.state.age = 10;
 person.reactive('full_name', '$name $family');
 console.log(person.state);
-person.state.name = 'Mo';
-person.state.family = 'Mahabadi';
+person.state.name = 'John';
+person.state.family = 'Doe';
 console.log(person.state);

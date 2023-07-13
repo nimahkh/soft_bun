@@ -1,9 +1,9 @@
-import State from '../src';
+import SoftBun from '../src';
 
 // Example usage:
 
 const data = {a: 1, b: 1, c: {d: 2, k: 4}};
-const r = new State(data);
+const r = new SoftBun(data);
 
 r.reactive('c.d', '2 + $b');
 r.reactive('c.k', '5 * $a * $b');
@@ -41,7 +41,7 @@ const data2: IPerson = {
     house_number: 3,
   },
 };
-const person = new State(data2);
+const person = new SoftBun(data2);
 person.reactive('full_name', '$name $family');
 console.log(person.state);
 person.state.name = 'John';
