@@ -1,7 +1,5 @@
 ![Build status](https://github.com/nimatrengo/sweet_bun/actions/workflows/release.yml/badge.svg)
 
-# Sweet Bun
-
 # Soft Bun
 
 Soft Bun is a lightweight and framework-agnostic reactivity library for JavaScript and TypeScript projects. It allows you to easily introduce reactivity into your applications, enabling automatic updates and dynamic behavior based on changes to your state.
