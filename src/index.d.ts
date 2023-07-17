@@ -1,4 +1,4 @@
-declare type NestedObject<T> = {
+export declare type NestedObject<T> = {
   [K in keyof T]: T[K] extends object ? NestedObject<T[K]> : T[K];
 };
 export default class State<T extends object> {
