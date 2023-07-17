@@ -16,13 +16,13 @@ Soft Bun is a lightweight and framework-agnostic reactivity library for JavaScri
 You can install Soft Bun using npm or Yarn:
 
 ```shell
-npm install soft-bun
+npm install soft_bun
 ```
 
 or
 
 ```shell
-yarn add soft-bun
+yarn add soft_bun
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ yarn add soft-bun
 Here's a basic example of how to use Soft Bun:
 
 ```javascript
-import SoftBun from 'soft-bun';
+import SoftBun from 'soft_bun';
 
 const data = {a: 2, b: 1};
 const state = new SoftBun(data);
