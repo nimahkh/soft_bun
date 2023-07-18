@@ -4,6 +4,9 @@
 
 Soft Bun is a lightweight and framework-agnostic reactivity library for JavaScript and TypeScript projects. It allows you to easily introduce reactivity into your applications, enabling automatic updates and dynamic behavior based on changes to your state.
 
+# Demo 
+[https://nimahkh.github.io/soft_bun_demo/](https://nimahkh.github.io/soft_bun_demo/)
+
 ## Features
 
 - **Reactivity**: Define reactive dependencies between variables in your state object using expressions.
