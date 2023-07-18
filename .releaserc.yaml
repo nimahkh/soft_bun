@@ -5,9 +5,9 @@ dryRun: false
 
 verifyConditions:
   - '@semantic-release/changelog'
+  - '@semantic-release/npm'
   - '@semantic-release/git'
   - '@semantic-release/github'
-  - '@semantic-release/npm'
 
 # Responsible for determining the type of the next release (major, minor or patch).
 # If multiple plugins with a analyzeCommits step are defined, the release type will be
