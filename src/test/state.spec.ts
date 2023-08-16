@@ -5,15 +5,21 @@ import State from '../';
 describe('State', () => {
   describe('#reactive', () => {
     it('should create a reactive property for a nested object', () => {
-      const data = {a: 1, b: 2, c: {d: 2}};
+      const data = {
+        a: 1,
+        b: 2,
+        c: {d: 2, e: 5, z: {r: 3, y: 9, t: {a: 4, b: 5}}},
+      };
       const state = new State(data);
-      state.reactive('c.d', '2 * $a + $b');
-      state.state.a = 1;
-      expect(state.state.c.d).to.equal(4);
-      state.state.a = 3;
-      expect(state.state.c.d).to.equal(8);
-      state.state.b = 4;
-      expect(state.state.c.d).to.equal(10);
+      state.reactive('c.d', '2 *  $a + $c.e + $c.z.r + $c.z.t.b');
+      state.state.c.e = 5;
+      expect(state.state.c.d).to.equal(15);
+      state.state.c.z.r = 2;
+      expect(state.state.c.d).to.equal(14);
+      state.state.c.z.t.b = 11;
+      expect(state.state.c.d).to.equal(20);
+      state.state.a = 2;
+      expect(state.state.c.d).to.equal(22);
     });
   });
 
