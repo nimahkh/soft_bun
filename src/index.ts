@@ -27,6 +27,7 @@ export default class State<T extends object> {
         if (!(key in target)) {
           target[key as keyof T];
         }
+
         const keyofT = key as keyof T;
         target[key as keyof T] = value;
         this.triggerUpdate(target, keyofT);
@@ -45,6 +46,7 @@ export default class State<T extends object> {
     const includedExpresionInValues = Object.keys(
       this.pairValues(value, this.state)
     );
+
     const unknownVariables = value;
     includedExpresionInValues.forEach(includedExpresionInValue => {
       this.keyValuePairs[key] = unknownVariables;
@@ -60,22 +62,34 @@ export default class State<T extends object> {
     });
   }
 
+  private getNestedPropertyValue(keyPath: string, obj: NestedObject<T>): any {
+    const keys = keyPath.split('.');
+    let value: any = obj;
+    for (const key of keys) {
+      value = value[key];
+      if (!value) {
+        break;
+      }
+    }
+
+    return value;
+  }
+
   private pairValues(str: string, obj: NestedObject<T>): {[K: string]: any} {
-    const regExp = /\$(\w+)/g;
+    const regExp = /\$(\w+(?:\.\w+)*)/g;
     let match;
     const values: {[K: string]: any} = {};
     while ((match = regExp.exec(str)) !== null) {
-      const key = match[1];
-      const value = obj[key as keyof T];
+      const keyPath = match[1];
+      const value = this.getNestedPropertyValue(keyPath, obj);
       if (value !== undefined) {
-        values[key] = value;
+        values[keyPath] = value;
       } else {
-        throw new Error(`Object does not contain key ${key}`);
+        throw new Error(`Object does not contain key ${keyPath}`);
       }
     }
     return values;
   }
-
   private evaluateExpression(str: string, obj: NestedObject<T>): any {
     const values = this.pairValues(str, obj);
     const expression = str.replace(/\$(\w+)/g, (_, key: string) =>
@@ -101,16 +115,24 @@ export default class State<T extends object> {
 
   private updateChainedObject(variable: keyof T) {
     const getKeys: Array<string> = Object.keys(this.reactive_keys);
+
     getKeys.forEach(variable_name => {
       const regex = new RegExp(`${this.delimiter}[^${this.delimiter}]+$`);
 
-      const variableWithoutUUID = variable_name.replace(regex, '');
+      let variableWithoutUUID = variable_name.replace(regex, '');
+      if (this.isKeyPath(variableWithoutUUID)) {
+        const keys = variableWithoutUUID.split('.');
+        const lastKey = keys.pop();
+
+        variableWithoutUUID = lastKey;
+      }
       if (
         this.reactive_keys[variable_name]?.mainKey &&
         variable === variableWithoutUUID
       ) {
         const {mainKey, value} = this.reactive_keys[variable_name];
         const values = this.pairValues(value, this.state);
+
         let reCalculate = value;
         for (const key in values) {
           reCalculate = reCalculate.replace(
@@ -118,6 +140,7 @@ export default class State<T extends object> {
             (values[key] ?? '').toString()
           );
         }
+
         this.mutateNestedObject(mainKey, this.eval(reCalculate), this.state);
       }
     });
@@ -140,7 +163,7 @@ export default class State<T extends object> {
         typeof nestedObj[key as keyof T] === 'object' &&
         nestedObj[key as keyof T] !== null
       ) {
-        nestedObj = nestedObj[key as keyof T] as NestedObject<T>;
+        nestedObj = nestedObj[key as keyof T] as unknown as NestedObject<T>;
       }
     }
 
@@ -156,7 +179,9 @@ export default class State<T extends object> {
         typeof nestedObj[castedLastKey] === 'object' &&
         nestedObj[castedLastKey] !== null
       ) {
-        for (const subKey in nestedObj[castedLastKey] as NestedObject<T>) {
+        for (const subKey in nestedObj[
+          castedLastKey
+        ] as unknown as NestedObject<T>) {
           this.updateChainedObject(subKey as keyof T);
         }
       } else {
