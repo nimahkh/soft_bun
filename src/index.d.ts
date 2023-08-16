@@ -16,5 +16,6 @@ export default class State<T extends object> {
   private isNumericMath;
   private mutateNestedObject;
   private triggerUpdate;
+  private getNestedPropertyValue;
 }
 export {};
